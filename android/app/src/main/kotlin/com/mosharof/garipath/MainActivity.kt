@@ -1,4 +1,4 @@
-package com.example.garipath
+package com.mosharof.garipath
 
 import io.flutter.embedding.android.FlutterActivity
 
