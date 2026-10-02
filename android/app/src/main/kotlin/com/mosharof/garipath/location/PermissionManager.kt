@@ -32,18 +32,15 @@ class PermissionManager(private val context: Context) :
     var activity: Activity? = null
 
     /** Current permission as the map Dart expects: status + isPrecise. */
-    fun currentPermission(): Map<String, Any> {
-        val fine = isGranted(Manifest.permission.ACCESS_FINE_LOCATION)
-        val coarse = isGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+    fun currentPermission(): Map<String, Any> =
+        permissionMap(currentStatus(), isPrecise = hasPreciseLocationPermission())
 
-        val status = when {
-            fine || coarse -> PermissionStatusValues.GRANTED
-            !hasRequestedBefore() -> PermissionStatusValues.NOT_DETERMINED
-            shouldShowRationale() -> PermissionStatusValues.DENIED
-            else -> PermissionStatusValues.DENIED_FOREVER
-        }
-
-        return permissionMap(status, isPrecise = fine)
+    /** One of [PermissionStatusValues]. */
+    fun currentStatus(): String = when {
+        hasAnyLocationPermission() -> PermissionStatusValues.GRANTED
+        !hasRequestedBefore() -> PermissionStatusValues.NOT_DETERMINED
+        shouldShowRationale() -> PermissionStatusValues.DENIED
+        else -> PermissionStatusValues.DENIED_FOREVER
     }
 
     /**
@@ -53,7 +50,7 @@ class PermissionManager(private val context: Context) :
     fun requestPermission(result: MethodChannel.Result) {
         // Already precise: nothing to ask. Approximate-only still asks, so the
         // user gets a chance to upgrade to precise.
-        if (isGranted(Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (hasPreciseLocationPermission()) {
             result.success(currentPermission())
             return
         }
@@ -111,8 +108,11 @@ class PermissionManager(private val context: Context) :
     }
 
     fun hasAnyLocationPermission(): Boolean =
-        isGranted(Manifest.permission.ACCESS_FINE_LOCATION) ||
+        hasPreciseLocationPermission() ||
             isGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+
+    fun hasPreciseLocationPermission(): Boolean =
+        isGranted(Manifest.permission.ACCESS_FINE_LOCATION)
 
     private fun hasRequestedBefore(): Boolean =
         prefs.getBoolean(KEY_HAS_REQUESTED_BEFORE, false)

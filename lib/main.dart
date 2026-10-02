@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:garipath/app.dart';
 import 'package:garipath/config/config_resolver.dart';
 import 'package:garipath/features/location/data/method_channel_location_service.dart';
+import 'package:garipath/features/location/domain/location_permission.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,13 +14,30 @@ Future<void> main() async {
 
   runApp(GariPathApp(config: config));
 
-  // TEMP DEBUG - do not commit
+  // TEMP DEBUG
   final service = MethodChannelLocationService();
-  debugPrint('GPDEBUG before request = ${await service.checkPermission()}');
-  try {
-    debugPrint('GPDEBUG request result = ${await service.requestPermission()}');
-  } catch (e) {
-    debugPrint('GPDEBUG request error = $e');
+  final permission = await service.requestPermission();
+  debugPrint('GPDEBUG permission = $permission');
+  if (permission.status == LocationPermissionStatus.deniedForever) {
+    debugPrint('GPDEBUG openAppSettings = ${await service.openAppSettings()}');
+    return;
   }
-  debugPrint('GPDEBUG after request  = ${await service.checkPermission()}');
+  if (!await service.isLocationServiceEnabled()) {
+    debugPrint(
+      'GPDEBUG openLocationSettings = ${await service.openLocationSettings()}',
+    );
+    return;
+  }
+  final stopwatch = Stopwatch()..start();
+  try {
+    final fix = await service.getCurrentLocation(
+      timeout: const Duration(seconds: 10),
+    );
+    debugPrint(
+      'GPDEBUG fix in ${stopwatch.elapsedMilliseconds}ms = '
+      '${fix.latitude}, ${fix.longitude} ±${fix.accuracyMeters}m precise=${fix.isPrecise}',
+    );
+  } catch (e) {
+    debugPrint('GPDEBUG error in ${stopwatch.elapsedMilliseconds}ms = $e');
+  }
 }
