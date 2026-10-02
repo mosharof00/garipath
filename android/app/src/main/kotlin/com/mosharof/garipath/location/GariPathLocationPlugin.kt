@@ -1,8 +1,10 @@
 package com.mosharof.garipath.location
 
+import com.google.android.gms.location.LocationServices
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 /**
@@ -14,7 +16,9 @@ import io.flutter.plugin.common.MethodChannel
 class GariPathLocationPlugin : FlutterPlugin, ActivityAware {
 
     private var methodChannel: MethodChannel? = null
+    private var eventChannel: EventChannel? = null
     private var methodHandler: LocationMethodHandler? = null
+    private var streamHandler: LocationStreamHandler? = null
     private var permissionManager: PermissionManager? = null
     private var activityBinding: ActivityPluginBinding? = null
 
@@ -22,19 +26,31 @@ class GariPathLocationPlugin : FlutterPlugin, ActivityAware {
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         val context = binding.applicationContext
+        val fusedClient = LocationServices.getFusedLocationProviderClient(context)
         val permissions = PermissionManager(context)
-        val handler = LocationMethodHandler(context, permissions)
+        val methods = LocationMethodHandler(context, fusedClient, permissions)
+        val stream = LocationStreamHandler(context, fusedClient, permissions)
 
         methodChannel = MethodChannel(binding.binaryMessenger, LocationChannels.METHOD)
-        methodChannel?.setMethodCallHandler(handler)
-        methodHandler = handler
+        methodChannel?.setMethodCallHandler(methods)
+        eventChannel = EventChannel(binding.binaryMessenger, LocationChannels.EVENTS)
+        eventChannel?.setStreamHandler(stream)
+
         permissionManager = permissions
+        methodHandler = methods
+        streamHandler = stream
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        streamHandler?.stopUpdates()
+        permissionManager?.cancelPendingRequest()
+
         methodChannel?.setMethodCallHandler(null)
+        eventChannel?.setStreamHandler(null)
         methodChannel = null
+        eventChannel = null
         methodHandler = null
+        streamHandler = null
         permissionManager = null
     }
 
@@ -52,6 +68,9 @@ class GariPathLocationPlugin : FlutterPlugin, ActivityAware {
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
+        // The Activity is only being recreated (e.g. dark mode switch). Dart is
+        // still listening and a showing dialog will answer the new Activity,
+        // so the stream and the pending request stay alive.
         detachFromActivity()
     }
 
@@ -61,6 +80,9 @@ class GariPathLocationPlugin : FlutterPlugin, ActivityAware {
     }
 
     override fun onDetachedFromActivity() {
+        // The screen is really gone: release everything tied to it.
+        streamHandler?.stopUpdates()
+        permissionManager?.cancelPendingRequest()
         detachFromActivity()
     }
 

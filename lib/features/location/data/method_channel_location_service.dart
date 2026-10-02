@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:garipath/core/logging/app_logger.dart';
 import 'package:garipath/features/location/data/location_channel_contract.dart';
 import 'package:garipath/features/location/data/location_error_mapper.dart';
 import 'package:garipath/features/location/data/location_payload_parser.dart';
@@ -30,35 +31,49 @@ class MethodChannelLocationService implements LocationService {
   @override
   Future<LocationPermission> checkPermission() async {
     final raw = await _invoke(LocationMethods.checkPermission);
-    return _parsePermission(raw);
+    final permission = _parsePermission(raw);
+    appLogger.d('Location permission: $permission');
+    return permission;
   }
 
   @override
   Future<LocationPermission> requestPermission() async {
     final raw = await _invoke(LocationMethods.requestPermission);
-    return _parsePermission(raw);
+    final permission = _parsePermission(raw);
+    appLogger.i('Permission request answered: $permission');
+    return permission;
   }
 
   @override
   Future<bool> isLocationServiceEnabled() async {
     final raw = await _invoke(LocationMethods.isLocationServiceEnabled);
-    return raw == true;
+    final enabled = raw == true;
+    appLogger.d('Location services enabled: $enabled');
+    return enabled;
   }
 
   @override
   Future<LocationFix> getCurrentLocation({
     Duration timeout = const Duration(seconds: 15),
   }) async {
+    final stopwatch = Stopwatch()..start();
     final raw =
         await _invoke(LocationMethods.getCurrentLocation, {
           LocationArgs.timeoutMs: timeout.inMilliseconds,
         }).timeout(
           timeout + safetyMargin,
-          onTimeout: () => throw const LocationTimeout(),
+          onTimeout: () {
+            appLogger.w('getCurrentLocation: no native reply, Dart timed out');
+            throw const LocationTimeout();
+          },
         );
 
     final fix = LocationPayloadParser.parseFix(raw);
     if (fix == null) throw _badPayload('location');
+    appLogger.i(
+      'Current location in ${stopwatch.elapsedMilliseconds}ms: '
+      '${_describe(fix)}',
+    );
     return fix;
   }
 
@@ -82,13 +97,17 @@ class MethodChannelLocationService implements LocationService {
             handleData: (raw, sink) {
               final fix = LocationPayloadParser.parseFix(raw);
               if (fix == null) {
+                appLogger.e('Stream sent invalid location data: $raw');
                 sink.addError(_badPayload('location'));
               } else {
+                appLogger.t('Stream fix: ${_describe(fix)}');
                 sink.add(fix);
               }
             },
             handleError: (error, stackTrace, sink) {
-              sink.addError(LocationErrorMapper.map(error), stackTrace);
+              final mapped = LocationErrorMapper.map(error);
+              appLogger.w('Location stream error: $mapped');
+              sink.addError(mapped, stackTrace);
             },
           ),
         );
@@ -97,12 +116,18 @@ class MethodChannelLocationService implements LocationService {
   @override
   Future<bool> openAppSettings() async {
     final raw = await _invoke(LocationMethods.openAppSettings);
+    appLogger.i(
+      'Open app settings: ${raw == true ? 'opened' : 'not available'}',
+    );
     return raw == true;
   }
 
   @override
   Future<bool> openLocationSettings() async {
     final raw = await _invoke(LocationMethods.openLocationSettings);
+    appLogger.i(
+      'Open location settings: ${raw == true ? 'opened' : 'not available'}',
+    );
     return raw == true;
   }
 
@@ -114,7 +139,9 @@ class MethodChannelLocationService implements LocationService {
     try {
       return await _methods.invokeMethod<Object?>(method, arguments);
     } on Exception catch (error) {
-      throw LocationErrorMapper.map(error);
+      final mapped = LocationErrorMapper.map(error);
+      appLogger.w('$method failed: $mapped');
+      throw mapped;
     }
   }
 
@@ -128,4 +155,9 @@ class MethodChannelLocationService implements LocationService {
     'Invalid $what data from native code',
     code: 'BAD_PAYLOAD',
   );
+
+  String _describe(LocationFix fix) =>
+      '${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)} '
+      '±${fix.accuracyMeters?.toStringAsFixed(0) ?? '?'}m '
+      '${fix.isPrecise ? 'precise' : 'approximate'}';
 }

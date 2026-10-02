@@ -107,6 +107,25 @@ class PermissionManager(private val context: Context) :
         return true
     }
 
+    /** The error code to send when location is needed but not granted. */
+    fun permissionErrorCode(): String =
+        if (currentStatus() == PermissionStatusValues.DENIED_FOREVER) {
+            LocationErrorCodes.PERMISSION_DENIED_FOREVER
+        } else {
+            LocationErrorCodes.PERMISSION_DENIED
+        }
+
+    /** The screen is gone, so the dialog answer will never come. Free the waiting call. */
+    fun cancelPendingRequest() {
+        val result = pendingResult ?: return
+        pendingResult = null
+        result.error(
+            LocationErrorCodes.ACTIVITY_UNAVAILABLE,
+            "The screen closed before the permission dialog was answered.",
+            null,
+        )
+    }
+
     fun hasAnyLocationPermission(): Boolean =
         hasPreciseLocationPermission() ||
             isGranted(Manifest.permission.ACCESS_COARSE_LOCATION)

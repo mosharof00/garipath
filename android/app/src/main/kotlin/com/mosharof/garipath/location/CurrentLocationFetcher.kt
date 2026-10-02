@@ -1,6 +1,7 @@
 package com.mosharof.garipath.location
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.location.Location
 import android.os.Handler
 import android.os.Looper
@@ -17,9 +18,9 @@ import io.flutter.plugin.common.MethodChannel
  * It never shows the permission dialog: Dart asks first, then calls this.
  */
 class CurrentLocationFetcher(
+    private val context: Context,
     private val fusedClient: FusedLocationProviderClient,
     private val permissionManager: PermissionManager,
-    private val isLocationServiceEnabled: () -> Boolean,
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -32,7 +33,7 @@ class CurrentLocationFetcher(
             replyPermissionError(result)
             return
         }
-        if (!isLocationServiceEnabled()) {
+        if (!context.isLocationServiceEnabled()) {
             result.error(
                 LocationErrorCodes.SERVICES_DISABLED,
                 "Device location is turned off.",
@@ -105,19 +106,11 @@ class CurrentLocationFetcher(
     }
 
     private fun replyPermissionError(result: MethodChannel.Result) {
-        if (permissionManager.currentStatus() == PermissionStatusValues.DENIED_FOREVER) {
-            result.error(
-                LocationErrorCodes.PERMISSION_DENIED_FOREVER,
-                "Location permission is blocked. Enable it in Settings.",
-                null,
-            )
-        } else {
-            result.error(
-                LocationErrorCodes.PERMISSION_DENIED,
-                "Location permission is not granted.",
-                null,
-            )
-        }
+        result.error(
+            permissionManager.permissionErrorCode(),
+            "Location permission is not granted.",
+            null,
+        )
     }
 
     /** Uses the boot clock, so changing the phone's time doesn't break it. */

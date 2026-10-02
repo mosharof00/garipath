@@ -4,11 +4,9 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.core.location.LocationManagerCompat
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.FusedLocationProviderClient
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -17,17 +15,15 @@ import io.flutter.plugin.common.MethodChannel
  */
 class LocationMethodHandler(
     private val context: Context,
+    fusedClient: FusedLocationProviderClient,
     private val permissionManager: PermissionManager,
 ) : MethodChannel.MethodCallHandler {
 
     /** The visible Activity, needed for dialogs and Settings. Null in background. */
     var activity: Activity? = null
 
-    private val currentLocationFetcher = CurrentLocationFetcher(
-        fusedClient = LocationServices.getFusedLocationProviderClient(context),
-        permissionManager = permissionManager,
-        isLocationServiceEnabled = ::isLocationServiceEnabled,
-    )
+    private val currentLocationFetcher =
+        CurrentLocationFetcher(context, fusedClient, permissionManager)
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -38,7 +34,7 @@ class LocationMethodHandler(
                 permissionManager.requestPermission(result)
 
             LocationMethods.IS_LOCATION_SERVICE_ENABLED ->
-                result.success(isLocationServiceEnabled())
+                result.success(context.isLocationServiceEnabled())
 
             LocationMethods.GET_CURRENT_LOCATION -> getCurrentLocation(call, result)
 
@@ -55,12 +51,6 @@ class LocationMethodHandler(
 
             else -> result.notImplemented()
         }
-    }
-
-    fun isLocationServiceEnabled(): Boolean {
-        val locationManager = context.getSystemService(LocationManager::class.java)
-            ?: return false
-        return LocationManagerCompat.isLocationEnabled(locationManager)
     }
 
     private fun getCurrentLocation(call: MethodCall, result: MethodChannel.Result) {
