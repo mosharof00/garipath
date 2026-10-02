@@ -67,3 +67,10 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // FusedLocationProviderClient for our own native location implementation.
+    implementation("com.google.android.gms:play-services-location:21.4.0")
+    // ContextCompat, ActivityCompat and LocationManagerCompat.
+    implementation("androidx.core:core-ktx:1.17.0")
+}

@@ -3,6 +3,12 @@
          but release builds only get what is declared here. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Foreground location only. Both are requested together so Android 12+
+         can offer "precise" or "approximate". No background location: the app
+         never tracks the user while it is not visible. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"
