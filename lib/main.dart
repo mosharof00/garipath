@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:garipath/app.dart';
+import 'package:garipath/config/config_resolver.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const GariPathApp());
-}
 
-class GariPathApp extends StatelessWidget {
-  const GariPathApp({super.key});
+  // appFlavor is set by `flutter run --flavor <name>`.
+  final config = resolveConfig(appFlavor);
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'GariPath',
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Center(child: Text('GariPath'))),
-    );
-  }
+  runApp(GariPathApp(config: config));
 }

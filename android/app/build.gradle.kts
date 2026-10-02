@@ -28,6 +28,27 @@ android {
         versionName = flutter.versionName
     }
 
+    // Needed so each flavor can define its own app_name with resValue.
+    buildFeatures {
+        resValues = true
+    }
+
+    // Two flavors that can be installed side by side on one device.
+    // Only the applicationId gets a suffix; the Kotlin namespace stays the same.
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "GariPath Dev")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "GariPath")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
