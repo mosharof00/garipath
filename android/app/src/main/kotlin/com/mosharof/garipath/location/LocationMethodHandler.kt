@@ -23,6 +23,9 @@ class LocationMethodHandler(
             LocationMethods.CHECK_PERMISSION ->
                 result.success(permissionManager.currentPermission())
 
+            LocationMethods.REQUEST_PERMISSION ->
+                permissionManager.requestPermission(result)
+
             LocationMethods.IS_LOCATION_SERVICE_ENABLED ->
                 result.success(isLocationServiceEnabled())
 

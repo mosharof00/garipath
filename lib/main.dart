@@ -11,10 +11,15 @@ Future<void> main() async {
   // appFlavor is set by `flutter run --flavor <name>`.
   final config = resolveConfig(appFlavor);
 
-  // TEMP DEBUG
-  final service = MethodChannelLocationService();
-  debugPrint('GPDEBUG permission========${await service.checkPermission()}');
-  debugPrint('GPDEBUG services=========${await service.isLocationServiceEnabled()}');
-
   runApp(GariPathApp(config: config));
+
+  // TEMP DEBUG - do not commit
+  final service = MethodChannelLocationService();
+  debugPrint('GPDEBUG before request = ${await service.checkPermission()}');
+  try {
+    debugPrint('GPDEBUG request result = ${await service.requestPermission()}');
+  } catch (e) {
+    debugPrint('GPDEBUG request error = $e');
+  }
+  debugPrint('GPDEBUG after request  = ${await service.checkPermission()}');
 }
