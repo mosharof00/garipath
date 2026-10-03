@@ -47,11 +47,13 @@
 
 /* Begin PBXFileReference section */
 		0008973E0F91C7FA5B235AAA /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		0932D017DC9C4B5B82DE97EB /* Debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Debug-prod.xcconfig"; sourceTree = "<group>"; };
 		0AE099B129F07E6355018812 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		121497B73813BD09AFC10BE0 /* Pods-RunnerTests.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-dev.xcconfig"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		159FB3BAB9A47188E0D0425A /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1636AED78F66D8D0BBA46D38 /* Profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Flutter/Profile.xcconfig; sourceTree = "<group>"; };
 		18F91D3DE1850BD2ECEFBC80 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		2B21D35DB23FE095771AB26E /* GariPathLocationPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GariPathLocationPlugin.swift; sourceTree = "<group>"; };
 		3048196B957A452AC9CD43D7 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 		3A10B5E9CE518BF822FA4654 /* Pods-RunnerTests.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-prod.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		3D0409A02DE73B232DD621ED /* Pods-RunnerTests.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-dev.xcconfig"; sourceTree = "<group>"; };
+		4411692A629BBBF38D07F26A /* Release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Release-prod.xcconfig"; sourceTree = "<group>"; };
 		46BFE6588AF8B5D70B57184D /* LocationStreamHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocationStreamHandler.swift; sourceTree = "<group>"; };
 		48709777C0D5F9E476F3FCAB /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BFE9B5BBDA6EB9A96CEFB80 /* Pods-Runner.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-dev.xcconfig"; sourceTree = "<group>"; };
@@ -81,8 +84,12 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A41522647FEEB4DBBF31B44E /* Profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Profile-dev.xcconfig"; sourceTree = "<group>"; };
+		A8B2DA75537B288E54AE93C0 /* Profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Profile-prod.xcconfig"; sourceTree = "<group>"; };
 		BC0881D75B79F5ACE13CA7B7 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		BC2E65CF20C20C882E0CF871 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		CD16FB279AEE61FE73CD284A /* Debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Debug-dev.xcconfig"; sourceTree = "<group>"; };
+		DB26F889E3338ABB519CFC62 /* Release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Flutter/Release-dev.xcconfig"; sourceTree = "<group>"; };
 		E1D0303380088D5AFB040EB9 /* Pods-RunnerTests.release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-prod.xcconfig"; sourceTree = "<group>"; };
 		F56DB63163CA0297ACE23EDB /* Pods-Runner.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -157,6 +164,13 @@
 				9740EEB21CF90195004384FC /* Debug.xcconfig */,
 				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
 				9740EEB31CF90195004384FC /* Generated.xcconfig */,
+				1636AED78F66D8D0BBA46D38 /* Profile.xcconfig */,
+				CD16FB279AEE61FE73CD284A /* Debug-dev.xcconfig */,
+				0932D017DC9C4B5B82DE97EB /* Debug-prod.xcconfig */,
+				DB26F889E3338ABB519CFC62 /* Release-dev.xcconfig */,
+				4411692A629BBBF38D07F26A /* Release-prod.xcconfig */,
+				A41522647FEEB4DBBF31B44E /* Profile-dev.xcconfig */,
+				A8B2DA75537B288E54AE93C0 /* Profile-prod.xcconfig */,
 			);
 			name = Flutter;
 			sourceTree = "<group>";
@@ -558,7 +572,7 @@
 		};
 		1E2DB2D37626B0F99CEE5725 /* Profile-prod */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			baseConfigurationReference = A8B2DA75537B288E54AE93C0 /* Profile-prod.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = GariPath;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -636,7 +650,7 @@
 		};
 		1F527649F569BA52329ACE75 /* Debug-prod */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			baseConfigurationReference = 0932D017DC9C4B5B82DE97EB /* Debug-prod.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = GariPath;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -660,7 +674,7 @@
 		};
 		20BD4B889542B3B151BE5531 /* Debug-dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			baseConfigurationReference = CD16FB279AEE61FE73CD284A /* Debug-dev.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = "GariPath Dev";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -737,7 +751,7 @@
 		};
 		249021D4217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			baseConfigurationReference = 1636AED78F66D8D0BBA46D38 /* Profile.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = GariPath;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -881,7 +895,7 @@
 		};
 		59CB3891C04117CE63973EF2 /* Release-dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			baseConfigurationReference = DB26F889E3338ABB519CFC62 /* Release-dev.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = "GariPath Dev";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1209,7 +1223,7 @@
 		};
 		C5BAED889F393BF6C8283C8E /* Profile-dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			baseConfigurationReference = A41522647FEEB4DBBF31B44E /* Profile-dev.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = "GariPath Dev";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1232,7 +1246,7 @@
 		};
 		DE67570B66370ACA38A827FB /* Release-prod */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			baseConfigurationReference = 4411692A629BBBF38D07F26A /* Release-prod.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = GariPath;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;

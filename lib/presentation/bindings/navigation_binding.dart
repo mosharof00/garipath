@@ -46,6 +46,8 @@ class NavigationBinding extends Bindings {
         route.route,
         TickerSimulationClock(),
         baseSpeedMps: config.simulationSpeedMps,
+        locationFix: location.fix,
+        onRerouteNeeded: route.rerouteFromCurrentLocation,
       ),
     );
 

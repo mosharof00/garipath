@@ -1,5 +1,25 @@
+import 'dart:math' as math;
+
 import 'package:garipath/core/geo/geo_math.dart';
 import 'package:latlong2/latlong.dart';
+
+/// Where a position falls on a route. See [RouteGeometry.project].
+class RouteProjection {
+  const RouteProjection({
+    required this.point,
+    required this.distanceAlongMeters,
+    required this.offsetMeters,
+  });
+
+  /// The closest point on the route line.
+  final LatLng point;
+
+  /// Distance from the route start to [point], along the route.
+  final double distanceAlongMeters;
+
+  /// How far the position is from the route line.
+  final double offsetMeters;
+}
 
 /// A route prepared for animation: cleaned points plus the distance from the
 /// start to every point.
@@ -105,6 +125,58 @@ class RouteGeometry {
   double bearingAt(double meters) {
     if (isDegenerate) return 0;
     return _segmentBearings[_segmentIndexAt(_clampDistance(meters))];
+  }
+
+  /// The closest point on the route to [position].
+  ///
+  /// Each segment is checked in a flat (equirectangular) projection centred
+  /// on [position]. Over the few hundred metres that matter here, that is
+  /// accurate to centimetres, and much simpler than spherical geometry.
+  RouteProjection project(LatLng position) {
+    if (isDegenerate) {
+      return RouteProjection(
+        point: points.first,
+        distanceAlongMeters: 0,
+        offsetMeters: GeoMath.distanceMeters(position, points.first),
+      );
+    }
+
+    final metersPerDegree = GeoMath.earthRadiusMeters * math.pi / 180;
+    final metersPerDegreeLng =
+        metersPerDegree * math.cos(position.latitude * math.pi / 180);
+    // Position of a point in metres, relative to [position] at (0, 0).
+    double x(LatLng p) =>
+        (p.longitude - position.longitude) * metersPerDegreeLng;
+    double y(LatLng p) => (p.latitude - position.latitude) * metersPerDegree;
+
+    var bestSegment = 0;
+    var bestT = 0.0;
+    var bestDistanceSquared = double.infinity;
+
+    for (var i = 0; i < points.length - 1; i++) {
+      final ax = x(points[i]), ay = y(points[i]);
+      final dx = x(points[i + 1]) - ax, dy = y(points[i + 1]) - ay;
+      final lengthSquared = dx * dx + dy * dy;
+      // How far along the segment the closest point is (0 = start, 1 = end).
+      final t = lengthSquared == 0
+          ? 0.0
+          : ((-ax * dx - ay * dy) / lengthSquared).clamp(0.0, 1.0);
+      final cx = ax + t * dx, cy = ay + t * dy;
+      final distanceSquared = cx * cx + cy * cy;
+      if (distanceSquared < bestDistanceSquared) {
+        bestDistanceSquared = distanceSquared;
+        bestSegment = i;
+        bestT = t;
+      }
+    }
+
+    final segmentStart = cumulativeMeters[bestSegment];
+    final segmentLength = cumulativeMeters[bestSegment + 1] - segmentStart;
+    return RouteProjection(
+      point: GeoMath.lerp(points[bestSegment], points[bestSegment + 1], bestT),
+      distanceAlongMeters: segmentStart + bestT * segmentLength,
+      offsetMeters: math.sqrt(bestDistanceSquared),
+    );
   }
 
   double _clampDistance(double meters) {

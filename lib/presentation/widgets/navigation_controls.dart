@@ -71,25 +71,54 @@ class NavigationControls extends StatelessWidget {
             ),
           ],
         ),
-        SegmentedButton<int>(
-          showSelectedIcon: false,
-          style: const ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            padding: WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SegmentedButton<DriveMode>(
+              showSelectedIcon: false,
+              style: _compact,
+              segments: [
+                const ButtonSegment(
+                  value: DriveMode.simulated,
+                  label: Text('Sim'),
+                  tooltip: 'Simulated drive',
+                ),
+                ButtonSegment(
+                  value: DriveMode.live,
+                  label: const Text('Live'),
+                  tooltip: 'Follow my real GPS position',
+                  // Live needs a device location.
+                  enabled: controller.canUseLive,
+                ),
+              ],
+              selected: {controller.mode.value},
+              onSelectionChanged: (selection) =>
+                  controller.setMode(selection.first),
             ),
-          ),
-          segments: [
-            for (final speed in speedOptions)
-              ButtonSegment(value: speed, label: Text('${speed}x')),
+            const SizedBox(width: 8),
+            SegmentedButton<int>(
+              showSelectedIcon: false,
+              style: _compact,
+              segments: [
+                for (final speed in speedOptions)
+                  ButtonSegment(value: speed, label: Text('${speed}x')),
+              ],
+              selected: {controller.multiplier.value},
+              // Real driving has no speed multiplier.
+              onSelectionChanged: controller.mode.value == DriveMode.live
+                  ? null
+                  : (selection) => controller.setMultiplier(selection.first),
+            ),
           ],
-          selected: {controller.multiplier.value},
-          onSelectionChanged: (selection) =>
-              controller.setMultiplier(selection.first),
         ),
       ],
     );
   }
+
+  static const _compact = ButtonStyle(
+    visualDensity: VisualDensity.compact,
+    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10)),
+  );
 }
 
 /// "Remaining 1.2 km · 1 min", or "Arrived" at the end. Listens to the

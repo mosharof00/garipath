@@ -147,6 +147,15 @@ class RouteController extends GetxController {
     if (destination.value != null) _scheduleFetch();
   }
 
+  /// Live mode left the route: route again from the current device
+  /// location to the same destination. Goes through the same debounce and
+  /// rate-limit gate as every other request.
+  void rerouteFromCurrentLocation() {
+    if (destination.value == null) return;
+    manualStart.value = null;
+    _scheduleFetch();
+  }
+
   /// "Retry" button: request again now, even for the same points.
   void retry() {
     _debouncer.cancel();
