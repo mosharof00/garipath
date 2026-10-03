@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:garipath/config/app_config.dart';
 import 'package:garipath/features/location/presentation/location_controller.dart';
 import 'package:garipath/features/navigation/presentation/map_camera_controller.dart';
+import 'package:garipath/features/navigation/presentation/navigation_controller.dart';
 import 'package:garipath/features/routing/presentation/route_controller.dart';
+import 'package:garipath/presentation/widgets/car_marker_layer.dart';
 import 'package:garipath/presentation/widgets/my_location_button.dart';
 import 'package:garipath/presentation/widgets/route_layer.dart';
 import 'package:garipath/presentation/widgets/route_summary_card.dart';
@@ -31,6 +33,7 @@ class _MapScreenState extends State<MapScreen> {
   final _location = Get.find<LocationController>();
   final _route = Get.find<RouteController>();
   final _camera = Get.find<MapCameraController>();
+  final _navigation = Get.find<NavigationController>();
 
   /// Used to measure the top card so a fitted route isn't hidden under it.
   final _statusCardKey = GlobalKey();
@@ -102,6 +105,7 @@ class _MapScreenState extends State<MapScreen> {
                     UserAccuracyLayer(controller: _location),
                     UserLocationDotLayer(controller: _location),
                     RouteMarkersLayer(controller: _route),
+                    CarMarkerLayer(controller: _navigation),
                     // OSM tile policy: attribution must always be visible.
                     const SimpleAttributionWidget(
                       source: Text('OpenStreetMap contributors'),

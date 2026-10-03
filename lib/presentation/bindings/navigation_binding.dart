@@ -3,7 +3,9 @@ import 'package:garipath/config/app_config.dart';
 import 'package:garipath/features/location/data/method_channel_location_service.dart';
 import 'package:garipath/features/location/domain/location_service.dart';
 import 'package:garipath/features/location/presentation/location_controller.dart';
+import 'package:garipath/features/navigation/data/ticker_simulation_clock.dart';
 import 'package:garipath/features/navigation/presentation/map_camera_controller.dart';
+import 'package:garipath/features/navigation/presentation/navigation_controller.dart';
 import 'package:garipath/features/routing/data/osrm_route_repository.dart';
 import 'package:garipath/features/routing/domain/route_repository.dart';
 import 'package:garipath/features/routing/presentation/route_controller.dart';
@@ -35,7 +37,17 @@ class NavigationBinding extends Bindings {
         baseUrl: config.osrmBaseUrl,
       ),
     );
-    Get.put(RouteController(Get.find<RouteRepository>(), location.fix));
+    final route = Get.put(
+      RouteController(Get.find<RouteRepository>(), location.fix),
+    );
+
+    Get.put(
+      NavigationController(
+        route.route,
+        TickerSimulationClock(),
+        baseSpeedMps: config.simulationSpeedMps,
+      ),
+    );
 
     Get.put(MapCameraController());
   }
