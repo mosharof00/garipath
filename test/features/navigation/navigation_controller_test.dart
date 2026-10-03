@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:garipath/core/navigation/route_animator.dart';
@@ -24,6 +25,9 @@ const _routeB = RouteModel(
 );
 
 void main() {
+  // The controller listens to app lifecycle events through WidgetsBinding.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late FakeSimulationClock clock;
   late Rxn<RouteModel> route;
   late NavigationController controller;
@@ -159,6 +163,58 @@ void main() {
     expect(controller.frame.value, isNull);
     expect(controller.playback.value, PlaybackState.idle);
     expect(clock.isRunning, isFalse);
+  });
+
+  group('app lifecycle', () {
+    test('background auto-pauses, return resumes without a jump', () {
+      route.value = _routeA;
+      controller.start();
+      clock.tickTimes(10); // 10 m
+
+      controller.didChangeAppLifecycleState(AppLifecycleState.hidden);
+      controller.didChangeAppLifecycleState(AppLifecycleState.paused);
+      expect(controller.playback.value, PlaybackState.paused);
+      expect(clock.isRunning, isFalse);
+
+      controller.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      expect(controller.playback.value, PlaybackState.playing);
+      expect(clock.isRunning, isTrue);
+      // A real clock's first tick after a restart is 0: nothing skipped.
+      clock.tick(Duration.zero);
+      expect(controller.frame.value!.distanceMeters, closeTo(10, 1e-9));
+    });
+
+    test('inactive (notification shade) keeps playing', () {
+      route.value = _routeA;
+      controller.start();
+
+      controller.didChangeAppLifecycleState(AppLifecycleState.inactive);
+
+      expect(controller.playback.value, PlaybackState.playing);
+      expect(clock.isRunning, isTrue);
+    });
+
+    test('a pause the user chose stays paused after returning', () {
+      route.value = _routeA;
+      controller.start();
+      controller.pause();
+
+      controller.didChangeAppLifecycleState(AppLifecycleState.paused);
+      controller.didChangeAppLifecycleState(AppLifecycleState.resumed);
+
+      expect(controller.playback.value, PlaybackState.paused);
+    });
+
+    test('reset while in the background: no auto-resume later', () {
+      route.value = _routeA;
+      controller.start();
+      controller.didChangeAppLifecycleState(AppLifecycleState.paused);
+
+      controller.reset();
+      controller.didChangeAppLifecycleState(AppLifecycleState.resumed);
+
+      expect(controller.playback.value, PlaybackState.idle);
+    });
   });
 
   test('closing the controller disposes the clock', () {

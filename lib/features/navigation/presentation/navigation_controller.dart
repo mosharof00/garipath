@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:garipath/core/geo/route_geometry.dart';
 import 'package:garipath/core/logging/app_logger.dart';
@@ -14,7 +15,7 @@ import 'package:garipath/features/routing/domain/route_model.dart';
 /// - [hud] changes at most every [hudInterval]. The text (remaining
 ///   distance and time) listens to it, so text isn't rebuilt 60 times a
 ///   second.
-class NavigationController extends GetxController {
+class NavigationController extends GetxController with WidgetsBindingObserver {
   NavigationController(
     this._route,
     this._clock, {
@@ -36,20 +37,50 @@ class NavigationController extends GetxController {
   Worker? _routeWorker;
   Duration _sinceHudUpdate = Duration.zero;
 
+  /// True when *we* paused because the app went to the background, so we
+  /// resume on return. A pause the user chose is never undone by us.
+  bool _autoPaused = false;
+
   bool get hasRoute => _animator != null;
 
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     _routeWorker = ever(_route, _onRouteChanged);
     _onRouteChanged(_route.value);
   }
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     _routeWorker?.dispose();
     _clock.dispose();
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        if (playback.value == PlaybackState.playing) {
+          appLogger.i('App in background: pausing the simulation');
+          _autoPaused = true;
+          pause();
+        }
+      case AppLifecycleState.resumed:
+        if (_autoPaused) {
+          appLogger.i('App back: resuming the simulation');
+          _autoPaused = false;
+          resume(); // the clock restarts from zero, so the car doesn't jump
+        }
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        // `inactive` also fires for the notification shade and system
+        // dialogs, where the app is still visible. Keep playing.
+        break;
+    }
   }
 
   void start() {
@@ -70,6 +101,7 @@ class NavigationController extends GetxController {
   }
 
   void reset() {
+    _autoPaused = false;
     _animator?.reset();
     _afterControl();
   }
@@ -84,6 +116,7 @@ class NavigationController extends GetxController {
   /// A new route (or no route) replaces the old animation completely.
   void _onRouteChanged(RouteModel? route) {
     _clock.stop();
+    _autoPaused = false;
     _animator = route == null ? null : _createAnimator(route);
     _afterControl();
   }
