@@ -98,7 +98,8 @@ class _MapScreenState extends State<MapScreen> {
           ),
           Positioned(
             right: 16,
-            bottom: 48,
+            // Above the attribution text and the system navigation bar.
+            bottom: 40 + MediaQuery.paddingOf(context).bottom,
             child: MyLocationButton(
               controller: _location,
               onShowLocation: _showLocation,

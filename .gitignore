@@ -46,3 +46,9 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# GariPath targets Android and iOS only. IDE tooling sometimes generates
+# desktop stubs; keep them out of the repo.
+/macos/
+/linux/
+/windows/
