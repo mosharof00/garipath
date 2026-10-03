@@ -11,6 +11,13 @@ sealed class RouteFailure implements Exception {
   String toString() => '$runtimeType: $message';
 }
 
+/// Start and destination are so close that a route makes no sense.
+/// Checked before any request is sent.
+class RouteDestinationTooClose extends RouteFailure {
+  const RouteDestinationTooClose([String? message])
+    : super(message ?? 'Destination is too close to the start');
+}
+
 /// The server found no drivable road between the two points.
 class RouteNoRoute extends RouteFailure {
   const RouteNoRoute([String? message]) : super(message ?? 'No route found');
