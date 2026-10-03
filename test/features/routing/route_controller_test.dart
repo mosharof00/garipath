@@ -342,6 +342,23 @@ void main() {
     });
   });
 
+  test('closing during the automatic 429 retry wait leaves no timers', () {
+    withController((async, controller) {
+      fix.value = fixAt(_home, startTime);
+      controller.onMapLongPress(_placeA);
+      async.elapse(_debounce);
+      repository.last.fail(const RouteRateLimited());
+      async.flushMicrotasks();
+      expect(async.pendingTimers, isNotEmpty); // the 2 s retry
+
+      Get.delete<RouteController>();
+
+      expect(async.pendingTimers, isEmpty);
+      async.elapse(const Duration(seconds: 5));
+      expect(repository.requests, hasLength(1));
+    });
+  });
+
   group('dedupe and retry', () {
     test('same destination (< 10 m) with the same start is not requested', () {
       withController((async, controller) {
