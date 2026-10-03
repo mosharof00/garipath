@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:garipath/config/app_config.dart';
+import 'package:garipath/core/navigation/route_animator.dart';
 import 'package:garipath/features/location/presentation/location_controller.dart';
 import 'package:garipath/features/navigation/presentation/map_camera_controller.dart';
 import 'package:garipath/features/navigation/presentation/navigation_controller.dart';
 import 'package:garipath/features/routing/presentation/route_controller.dart';
 import 'package:garipath/presentation/widgets/car_marker_layer.dart';
 import 'package:garipath/presentation/widgets/my_location_button.dart';
+import 'package:garipath/presentation/widgets/recenter_button.dart';
 import 'package:garipath/presentation/widgets/route_layer.dart';
 import 'package:garipath/presentation/widgets/route_summary_card.dart';
 import 'package:garipath/presentation/widgets/status_card.dart';
@@ -51,9 +53,27 @@ class _MapScreenState extends State<MapScreen> {
         _movedToFirstFix = true;
         _camera.showPoint(LatLng(fix.latitude, fix.longitude));
       }),
-      // Show the whole route when it arrives.
+      // Show the whole route when it arrives. Wait one frame: the bottom
+      // panel grows with the route, which makes the map smaller.
       ever(_route.route, (route) {
-        if (route != null) _camera.fitRoute(route.points, _fitPadding());
+        if (route == null) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _camera.fitRoute(route.points, _fitPadding());
+        });
+      }),
+      // Start / Resume: bring the camera to the car and follow it.
+      ever(_navigation.playback, (state) {
+        final frame = _navigation.frame.value;
+        if (state == PlaybackState.playing && frame != null) {
+          _camera.recenter(frame.position);
+        }
+      }),
+      // Every frame while playing: keep the car centred (if following).
+      ever(_navigation.frame, (frame) {
+        if (frame != null &&
+            _navigation.playback.value == PlaybackState.playing) {
+          _camera.followTo(frame.position);
+        }
       }),
     ];
   }
@@ -89,6 +109,8 @@ class _MapScreenState extends State<MapScreen> {
                     initialZoom: 13,
                     onMapReady: _camera.onMapReady,
                     onLongPress: (_, point) => _route.onMapLongPress(point),
+                    onPositionChanged: (_, hasGesture) =>
+                        _camera.onPositionChanged(hasGesture: hasGesture),
                     // Rotation is disabled so the car's heading always
                     // matches the screen.
                     interactionOptions: const InteractionOptions(
@@ -125,16 +147,23 @@ class _MapScreenState extends State<MapScreen> {
                 Positioned(
                   right: 16,
                   bottom: 40, // above the attribution text
-                  child: MyLocationButton(
-                    controller: _location,
-                    onShowLocation: (fix) =>
-                        _camera.showPoint(LatLng(fix.latitude, fix.longitude)),
+                  child: Column(
+                    children: [
+                      RecenterButton(camera: _camera, navigation: _navigation),
+                      const SizedBox(height: 12),
+                      MyLocationButton(
+                        controller: _location,
+                        onShowLocation: (fix) => _camera.showPoint(
+                          LatLng(fix.latitude, fix.longitude),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          RouteSummaryCard(controller: _route),
+          RouteSummaryCard(controller: _route, navigation: _navigation),
         ],
       ),
     );

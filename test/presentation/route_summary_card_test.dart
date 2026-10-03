@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:garipath/features/location/domain/location_fix.dart';
+import 'package:garipath/features/navigation/presentation/navigation_controller.dart';
 import 'package:garipath/features/routing/domain/route_failure.dart';
 import 'package:garipath/features/routing/domain/route_model.dart';
 import 'package:garipath/features/routing/presentation/route_controller.dart';
@@ -9,18 +10,27 @@ import 'package:garipath/presentation/widgets/route_summary_card.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../fakes/fake_route_repository.dart';
+import '../fakes/fake_simulation_clock.dart';
 
 void main() {
   late RouteController controller;
+  late NavigationController navigation;
 
   setUp(() {
     // Created directly (not Get.put), so the test sets the state by hand.
     controller = RouteController(FakeRouteRepository(), Rxn<LocationFix>());
+    navigation = NavigationController(
+      controller.route,
+      FakeSimulationClock(),
+      baseSpeedMps: 10,
+    );
   });
 
   Future<void> pumpCard(WidgetTester tester) => tester.pumpWidget(
     MaterialApp(
-      home: Scaffold(body: RouteSummaryCard(controller: controller)),
+      home: Scaffold(
+        body: RouteSummaryCard(controller: controller, navigation: navigation),
+      ),
     ),
   );
 

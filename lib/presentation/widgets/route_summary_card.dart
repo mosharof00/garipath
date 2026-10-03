@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:garipath/core/util/formatters.dart';
+import 'package:garipath/features/navigation/presentation/navigation_controller.dart';
 import 'package:garipath/features/routing/domain/route_failure.dart';
 import 'package:garipath/features/routing/presentation/route_controller.dart';
+import 'package:garipath/presentation/widgets/navigation_controls.dart';
 
-/// The bottom panel: hint, loading, route summary or route error.
+/// The bottom panel: hint, loading, route summary or route error. With a
+/// route, it also holds the playback controls.
 class RouteSummaryCard extends StatelessWidget {
-  const RouteSummaryCard({super.key, required this.controller});
+  const RouteSummaryCard({
+    super.key,
+    required this.controller,
+    required this.navigation,
+  });
 
   final RouteController controller;
+  final NavigationController navigation;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +34,11 @@ class RouteSummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _body(context),
+                if (controller.status.value == RouteStatus.ready &&
+                    !controller.pickingStart.value) ...[
+                  const SizedBox(height: 8),
+                  NavigationControls(controller: navigation),
+                ],
                 if (controller.manualStart.value != null &&
                     !controller.pickingStart.value)
                   Align(
