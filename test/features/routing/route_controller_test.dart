@@ -169,6 +169,65 @@ void main() {
       });
     });
 
+    test('no location ever: destination, then a manual start -> routes', () {
+      withController((async, controller) {
+        controller.onMapLongPress(_placeA);
+        async.elapse(_debounce);
+        expect(controller.status.value, RouteStatus.waitingForStart);
+
+        controller.startPickingStart();
+        controller.onMapLongPress(_placeC);
+        async.elapse(_debounce);
+
+        expect(controller.destination.value, _placeA);
+        expect(repository.last.start, _placeC);
+        expect(repository.last.destination, _placeA);
+      });
+    });
+
+    test('cancel picking: the next long-press sets the destination', () {
+      withController((async, controller) {
+        controller.startPickingStart();
+        controller.cancelPickingStart();
+
+        controller.onMapLongPress(_placeA);
+
+        expect(controller.manualStart.value, isNull);
+        expect(controller.destination.value, _placeA);
+      });
+    });
+
+    test('"Use my location" clears the manual start and re-routes', () {
+      withController((async, controller) {
+        fix.value = fixAt(_home, startTime);
+        controller.startPickingStart();
+        controller.onMapLongPress(_placeC);
+        controller.onMapLongPress(_placeA);
+        async.elapse(_debounce);
+        repository.last.succeed(fakeRoute(_placeC, _placeA));
+        async.flushMicrotasks();
+
+        controller.clearManualStart();
+        async.elapse(const Duration(seconds: 2)); // debounce + 1.1 s gate
+
+        expect(controller.manualStart.value, isNull);
+        expect(repository.requests, hasLength(2));
+        expect(repository.last.start, _home);
+      });
+    });
+
+    test('manual start closer than 15 m to the destination -> too close', () {
+      withController((async, controller) {
+        controller.onMapLongPress(_placeA);
+        controller.startPickingStart();
+        controller.onMapLongPress(const LatLng(23.75005, 90.4250)); // ~5.5 m
+        async.elapse(_debounce);
+
+        expect(controller.failure.value, isA<RouteDestinationTooClose>());
+        expect(repository.requests, isEmpty);
+      });
+    });
+
     test('destination closer than 15 m -> too close, no request', () {
       withController((async, controller) {
         fix.value = fixAt(_home, startTime);

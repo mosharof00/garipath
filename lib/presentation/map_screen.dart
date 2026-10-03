@@ -66,7 +66,9 @@ class _MapScreenState extends State<MapScreen> {
   EdgeInsets _fitPadding() {
     final cardHeight = _statusCardKey.currentContext?.size?.height ?? 0;
     final topInset = MediaQuery.paddingOf(context).top;
-    return EdgeInsets.fromLTRB(40, topInset + cardHeight + 40, 40, 56);
+    // Pins are drawn above their point, so the top needs extra room. The
+    // bottom keeps the route clear of the My-location button.
+    return EdgeInsets.fromLTRB(56, topInset + cardHeight + 64, 56, 120);
   }
 
   @override
