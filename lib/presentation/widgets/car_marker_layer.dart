@@ -30,8 +30,9 @@ class CarMarkerLayer extends StatelessWidget {
             width: carSize,
             height: carSize,
             child: Transform.rotate(
-              // The map never rotates, so the compass heading is also the
-              // screen angle. Transform.rotate wants radians.
+              // Heading is relative to north on the map. The marker turns
+              // with the map, so this stays right when the map is rotated.
+              // Transform.rotate wants radians.
               angle: frame.headingDegrees * math.pi / 180,
               child: const CustomPaint(painter: CarPainter()),
             ),

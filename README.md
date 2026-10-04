@@ -23,7 +23,9 @@ Design notes: [DECISIONS.md](DECISIONS.md).
 
 **Bonus**
 - **iOS** native location in Swift (`CLLocationManager`) behind the same channels, with **no Dart changes**. Includes reduced-accuracy handling and `dev`/`prod` schemes. See [iOS](#ios).
-- Live GPS mode and off-route reroute: planned.
+- **Live GPS mode** (Sim | Live switch): the car follows the device's real position instead of the simulation. Fixes within 25 m of the route are **snapped onto the line**, and the car glides between fixes instead of jumping. Heading comes from the GPS bearing when moving, otherwise from the road direction. Remaining time uses OSRM's pace.
+- **Navigation camera (rotation only):** while following, the map turns with the car so it always points up the screen. Showing my location, fitting a new route and Reset turn the map back to north up. Tilt is not implemented (see [DECISIONS.md](DECISIONS.md)).
+- **Off-route reroute:** 3 accurate fixes in a row (accuracy ≤ 50 m) more than 50 m from the route trigger a new route from the current position to the same destination, then Live mode continues by itself. Reroutes are at least 30 s apart and go through the same debounce and rate limit.
 
 ## Requirements
 
@@ -106,15 +108,16 @@ The brief leaves some points open. These are the choices I made:
 1. **Platforms:** Android and iOS are implemented. Any other platform reports "not supported" through the same channel contract. It doesn't crash, and the manual start still works.
 2. **Packages:** only location and permission plugins are forbidden, so `get`, `dio`, `flutter_map` and `latlong2` are used.
 3. **Speed:** the car drives at a fixed simulated **50 km/h × multiplier**. The route card shows OSRM's real-world ETA. The live "Remaining" time is based on the simulated speed, so it matches what you see and reacts to 1x/2x/5x.
-4. **Start point:** the latest device fix, if it's under 2 minutes old when the destination is chosen. The route is not recomputed as the device moves.
+4. **Start point:** the latest device fix, if it's under 2 minutes old when the destination is chosen. In Sim mode the route is not recomputed as the device moves; in Live mode it is, but only when the device leaves the route.
 5. **No location** (denied, services off, indoors): the user can still pick a start point on the map. The app never blocks the core feature, and it never invents a silent default start.
 6. **Approximate location** grants are accepted, with a banner offering precise location.
 7. **Before the first fix**, the map is centred on Dhaka. The first fix times out after 15 s.
-8. **Camera:** any drag or zoom gesture stops camera follow. Recenter, Start and Resume turn it back on.
+8. **Camera:** any drag or zoom gesture stops camera follow; the map keeps its current angle until Recenter, Start or Resume turn following (and heading-up rotation) back on. Two-finger rotation by the user is disabled, so the only map rotation is the camera's.
 9. **New destination while driving:** the animation stops and a new route is fetched from the same start.
 10. **Background:** the animation pauses and location updates stop while the app isn't visible. Both resume on return.
 11. **Portrait only.**
 12. **Both flavors** use the public OSRM server. Switching is a one-line config change (see above).
+13. **Live mode** needs a device location, so the Live switch is disabled until there is one. The speed multiplier is disabled in Live mode. Switching mode stops the current trip. Live mode counts as arrived within 20 m of the destination.
 
 ## Known limitations
 
@@ -165,7 +168,8 @@ lib/
   config/          AppConfig + dev/prod values, flavor resolver
   core/
     geo/           haversine, bearing, polyline decoder, RouteGeometry
-    navigation/    RouteAnimator, HeadingSmoother, NavigationFrame (pure Dart)
+    navigation/    RouteAnimator, LiveTracker, OffRouteDetector, HeadingSmoother,
+                   NavigationFrame (pure Dart)
     util/          formatters, debouncer, rate-limit gate, cancel signal
   features/
     location/      channel service, typed errors, LocationController

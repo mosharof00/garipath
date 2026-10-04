@@ -8,6 +8,9 @@ import 'package:garipath/presentation/widgets/dev_banner.dart';
 class GariPathApp extends StatelessWidget {
   const GariPathApp({super.key, required this.config});
 
+  static const _deepGreen = Color(0xFF1B5E20);
+  static const _lightGreenBackground = Color(0xFFF1F8F2);
+
   final AppConfig config;
 
   @override
@@ -15,7 +18,14 @@ class GariPathApp extends StatelessWidget {
     return GetMaterialApp(
       title: config.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: _deepGreen,
+          primary: _deepGreen,
+          surface: _lightGreenBackground,
+        ),
+      ),
       // The app has a single screen. Its binding creates the controllers with
       // the page and disposes them (onClose) when the page is removed.
       initialRoute: '/',

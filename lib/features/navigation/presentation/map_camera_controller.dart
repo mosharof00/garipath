@@ -41,31 +41,45 @@ class MapCameraController extends GetxController {
     if (hasGesture && following.value) following.value = false;
   }
 
-  /// Centres on [point], zooming in to at least [locationZoom]. The user
-  /// asked to look somewhere else, so the camera stops following the car.
+  /// Centres on [point], zooming in to at least [locationZoom], north up.
+  /// The user asked to look somewhere else, so the camera stops following
+  /// the car.
   void showPoint(LatLng point) {
     following.value = false;
-    _runWhenReady(() => _moveTo(point, minZoom: locationZoom));
+    _runWhenReady(() => _moveTo(point, minZoom: locationZoom, heading: 0));
   }
 
-  /// Keeps the car centred, at the user's current zoom. Does nothing while
-  /// the user is looking around (not [following]).
-  void followTo(LatLng point) {
+  /// Keeps the car centred at the user's current zoom, with the map turned
+  /// so the car points up the screen. Does nothing while the user is
+  /// looking around (not [following]).
+  void followTo(LatLng point, double headingDegrees) {
     if (!following.value || !_mapReady) return;
-    mapController.move(point, mapController.camera.zoom);
+    mapController.moveAndRotate(
+      point,
+      mapController.camera.zoom,
+      _rotationFor(headingDegrees),
+    );
   }
 
   /// "Recenter" button, or playback started: follow the car again.
-  void recenter(LatLng point) {
+  void recenter(LatLng point, double headingDegrees) {
     following.value = true;
-    _runWhenReady(() => _moveTo(point, minZoom: followZoom));
+    _runWhenReady(
+      () => _moveTo(point, minZoom: followZoom, heading: headingDegrees),
+    );
   }
 
-  /// Fits the whole route on screen. [padding] keeps it clear of the cards
-  /// drawn over the map.
+  /// Turns the map back to north up (trip reset).
+  void resetNorth() {
+    _runWhenReady(() => mapController.rotate(0));
+  }
+
+  /// Fits the whole route on screen, north up. [padding] keeps it clear of
+  /// the cards drawn over the map.
   void fitRoute(List<LatLng> points, EdgeInsets padding) {
     if (points.isEmpty) return;
     _runWhenReady(() {
+      mapController.rotate(0);
       // A one-point "route" has no size to fit: just centre on it.
       if (points.length < 2) {
         mapController.move(points.first, maxFitZoom);
@@ -81,10 +95,22 @@ class MapCameraController extends GetxController {
     });
   }
 
-  void _moveTo(LatLng point, {required double minZoom}) {
+  void _moveTo(
+    LatLng point, {
+    required double minZoom,
+    required double heading,
+  }) {
     final zoom = mapController.camera.zoom;
-    mapController.move(point, zoom < minZoom ? minZoom : zoom);
+    mapController.moveAndRotate(
+      point,
+      zoom < minZoom ? minZoom : zoom,
+      _rotationFor(heading),
+    );
   }
+
+  /// flutter_map turns the map clockwise by its rotation, so turning it by
+  /// minus the car's heading puts the car's direction at the top.
+  double _rotationFor(double headingDegrees) => -headingDegrees;
 
   void _runWhenReady(VoidCallback move) {
     if (_mapReady) {

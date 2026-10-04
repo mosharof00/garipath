@@ -30,7 +30,7 @@ class RecenterButton extends StatelessWidget {
       return FloatingActionButton.small(
         heroTag: null,
         tooltip: 'Follow the car',
-        onPressed: () => camera.recenter(frame.position),
+        onPressed: () => camera.recenter(frame.position, frame.headingDegrees),
         child: const Icon(Icons.navigation),
       );
     });

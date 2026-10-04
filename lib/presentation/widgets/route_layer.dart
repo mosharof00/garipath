@@ -47,6 +47,8 @@ class RouteMarkersLayer extends StatelessWidget {
       final manualStart = controller.manualStart.value;
 
       return MarkerLayer(
+        // Keep the pins upright when the camera turns the map.
+        rotate: true,
         markers: [
           if (manualStart != null)
             Marker(

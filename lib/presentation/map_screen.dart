@@ -62,17 +62,21 @@ class _MapScreenState extends State<MapScreen> {
         });
       }),
       // Start / Resume: bring the camera to the car and follow it.
+      // Reset: turn the map back to north up.
       ever(_navigation.playback, (state) {
         final frame = _navigation.frame.value;
         if (state == PlaybackState.playing && frame != null) {
-          _camera.recenter(frame.position);
+          _camera.recenter(frame.position, frame.headingDegrees);
+        } else if (state == PlaybackState.idle) {
+          _camera.resetNorth();
         }
       }),
-      // Every frame while playing: keep the car centred (if following).
+      // Every frame while playing: keep the car centred and pointing up
+      // (if following).
       ever(_navigation.frame, (frame) {
         if (frame != null &&
             _navigation.playback.value == PlaybackState.playing) {
-          _camera.followTo(frame.position);
+          _camera.followTo(frame.position, frame.headingDegrees);
         }
       }),
     ];
@@ -111,8 +115,8 @@ class _MapScreenState extends State<MapScreen> {
                     onLongPress: (_, point) => _route.onMapLongPress(point),
                     onPositionChanged: (_, hasGesture) =>
                         _camera.onPositionChanged(hasGesture: hasGesture),
-                    // Rotation is disabled so the car's heading always
-                    // matches the screen.
+                    // The camera turns the map while following the car;
+                    // two-finger rotation by the user stays off.
                     interactionOptions: const InteractionOptions(
                       flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
                     ),
