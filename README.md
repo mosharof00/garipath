@@ -1,6 +1,6 @@
 # GariPath
 
-A single-screen Flutter app that gets the device location through **its own native code**, draws a driving route to a long-pressed destination, and animates a car along it at a constant speed. Built for the Garibook Senior Mobile Developer assessment.
+A single-screen Flutter app that gets the device location through **its own native code**, draws a driving route to a long-pressed destination, and animates a car along it at a constant speed.
 
 | Driving at 5x | Camera follow + Recenter | No location? Pick a start |
 |---|---|---|
